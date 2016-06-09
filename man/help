@@ -1,0 +1,9 @@
+Usage: docket help [COMMAND]
+
+Shows help for the specified Docket COMMAND. If COMMAND is omitted, shows usage
+information for Docket itself.
+
+Examples:
+
+  docket help
+  docket help start

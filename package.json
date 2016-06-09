@@ -1,0 +1,19 @@
+{
+  "name": "docket",
+  "version": "1.0.0",
+  "description": "Build a docket of tasks as you work.",
+  "main": "bin/docket",
+  "bin": {
+    "docket": "bin/docket"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Schoonmaker <michael.r.schoonmaker@gmail.com> (https://www.schoonology.com/)",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "ocl": "~1.1.1"
+  },
+  "keywords": []
+}

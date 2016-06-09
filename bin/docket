@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+var path = require('path')
+var loader = require('ocl').createLoader({
+  root: path.resolve(__dirname, '..', 'cmd'),
+  manuals: path.resolve(__dirname, '..', 'man')
+})
+
+loader.run()
