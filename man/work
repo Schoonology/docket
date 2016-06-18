@@ -1,0 +1,4 @@
+Usage: docket work [NAME] [OPTIONS]
+
+Options:
+  --duration [TIME]

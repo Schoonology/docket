@@ -1,8 +1,49 @@
 #!/usr/bin/env node
+var fork = require('child_process').fork
+var net = require('net')
 var path = require('path')
-var loader = require('ocl').createLoader({
-  root: path.resolve(__dirname, '..', 'cmd'),
-  manuals: path.resolve(__dirname, '..', 'man')
-})
+var lowdb = require('lowdb')
+var resp = require('resp')
+var db = lowdb(path.join(process.env.HOME, '.docket'))
+var child
 
-loader.run()
+if (!db.get('pid').value()) {
+  child = fork(
+    path.join(__dirname, 'daemon'),
+    [path.join(process.env.HOME, '.docket')]
+  )
+    .on('message', function (msg) {
+      if (msg === 'listening') {
+        child.unref()
+        child.disconnect()
+
+        fork(__filename, process.argv.slice(2))
+      }
+    })
+} else {
+  sendCommand()
+}
+
+function sendCommand() {
+  var client = net.connect(db.get('port').value())
+
+  client.setEncoding('utf8')
+
+  client
+    .on('connect', function () {
+      client.end(resp.stringify(process.argv.slice(2)))
+    })
+    .on('data', function (message) {
+      var value = resp.parse(message)
+
+      if (!value) {
+        return
+      }
+
+      if (value.name && value.message) {
+        console.error(value.message)
+      } else {
+        console.log(value.message || value)
+      }
+    })
+}

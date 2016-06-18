@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+var net = require('net')
+var path = require('path')
+var lowdb = require('lowdb')
+var notifier = require('node-notifier')
+var resp = require('resp')
+var loader = require('ocl').createLoader({
+  root: path.resolve(__dirname, '..', 'cmd'),
+  manuals: path.resolve(__dirname, '..', 'man')
+})
+var server = net.createServer({
+  allowHalfOpen: true
+})
+var db = lowdb(path.join(process.env.HOME, '.docket'))
+
+db.set('pid', process.pid).value()
+
+process.on('exit', function () {
+  db.unset('pid').value()
+  db.unset('port').value()
+})
+process.on('SIGINT', process.exit)
+process.on('SIGTERM', process.exit)
+
+server
+  .on('listening', function () {
+    console.log('Daemon listening on port %s.', this.address().port)
+
+    process.send && process.send('listening')
+
+    db.set('port', this.address().port).value()
+  })
+  .on('connection', function (socket) {
+    var buffer = ''
+
+    socket.setEncoding('utf8')
+
+    socket
+      .on('data', function (message) {
+        buffer += message
+      })
+      .on('end', function () {
+        var arr = resp.parse(buffer)
+
+        Promise.resolve(loader.run(arr))
+          .then(function (result) {
+            socket.end(resp.stringify(result || null))
+          })
+          .catch(function (err) {
+            console.log('Error:', err)
+            socket.end(resp.stringify(err))
+          })
+      })
+  })
+  .listen()

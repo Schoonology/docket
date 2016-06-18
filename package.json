@@ -1,6 +1,6 @@
 {
   "name": "docket",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "description": "Build a docket of tasks as you work.",
   "main": "bin/docket",
   "bin": {
@@ -13,6 +13,9 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
+    "lowdb": "~0.13.1",
+    "moment": "~2.13.0",
+    "node-notifier": "~4.6.0",
     "ocl": "~1.1.1"
   },
   "keywords": []
