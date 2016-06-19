@@ -1,10 +1,13 @@
 var path = require('path')
 var lowdb = require('lowdb')
 var notifier = require('node-notifier')
+var parseDuration = require('parse-duration')
 var work = require('./work')
+var DEFAULT_DURATION = '5 minutes'
 
 function _break(argv, options, loader) {
   var db = lowdb(options.db || path.join(process.env.HOME, '.docket'))
+  var duration = parseDuration(options.duration || DEFAULT_DURATION)
 
   db.defaults({
       tasks: []
@@ -27,7 +30,7 @@ function _break(argv, options, loader) {
       message: 'Break complete.',
       icon: null
     })
-  }, options.duration || 5000)
+  }, duration)
 }
 
 module.exports = _break

@@ -1,10 +1,13 @@
 var path = require('path')
 var lowdb = require('lowdb')
 var notifier = require('node-notifier')
+var parseDuration = require('parse-duration')
+var DEFAULT_DURATION = '25 minutes'
 
 function work(argv, options, loader) {
   var name = options._[0] || 'Unassigned'
   var db = lowdb(options.db || path.join(process.env.HOME, '.docket'))
+  var duration = parseDuration(options.duration || DEFAULT_DURATION)
 
   db.defaults({
       tasks: []
@@ -19,7 +22,7 @@ function work(argv, options, loader) {
     })
     .push({
       started: Date.now(),
-      duration: options.duration || 5000,
+      duration: duration,
       name: name
     })
     .value()
@@ -33,7 +36,7 @@ function work(argv, options, loader) {
       message: 'Chunk complete: ' + name,
       icon: null
     })
-  }, options.duration || 5000)
+  }, duration)
 }
 
 module.exports = work
