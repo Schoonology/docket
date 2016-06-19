@@ -15,24 +15,78 @@ function formatDuration(duration) {
 
 function status(argv, options, loader) {
   var db = lowdb(options.db || path.join(process.env.HOME, '.docket'))
+  var _tasks = db.defaults({
+    tasks: []
+  })
+    .get('tasks')
+    .groupBy('name')
+    .map(function (chunks, name) {
+      var task = { name: name }
 
-  var task = db.get('task').value()
+      task.remaining = 0
+      task.elapsed = 0
 
-  if (!task) {
-    return
-  }
+      chunks.forEach(function (chunk) {
+        var elapsed = Date.now() - chunk.started
 
-  var duration = moment.duration(task.duration - (Date.now() - task.started))
+        if (elapsed > chunk.duration) {
+          elapsed = chunk.duration
+        } else {
+          task.remaining += chunk.duration - elapsed
+        }
+
+        task.elapsed += elapsed
+      })
+
+      return task
+    })
+    .values()
+  var current = _tasks.find('remaining').value()
+  var lines = ['# Docket', '']
 
   if (options.raw) {
-    return { message: formatDuration(duration) }
+    return current && { message: formatDuration(
+      moment.duration(current.remaining)
+    )}
   }
 
-  return {
-    message: util.format('%j\nCurrent chunk: %s remaining.',
-      db.value(),
-      formatDuration(duration)
+  if (current) {
+    lines.push(util.format('Current chunk: %s remaining.', formatDuration(
+      moment.duration(current.remaining)
+    )))
+  }
+
+  if (_tasks.get('length').value()) {
+    lines.push(util.format('Total time: %s', formatDuration(moment.duration(_tasks
+      .map('elapsed')
+      .sum()
+      .value()
+    ))))
+  }
+
+  if (current || _tasks.get('length').value()) {
+    lines.push('')
+  }
+
+  lines.push('## Tasks')
+  lines.push('')
+
+  if (_tasks.get('length').value()) {
+    lines = lines.concat(_tasks
+      .map(function (task) {
+        return util.format('- %s: %s', task.name, formatDuration(moment.duration(task.elapsed)))
+      })
+      .value()
     )
+  } else {
+    lines.push('None.')
+  }
+
+  lines.push('')
+  lines.push(JSON.stringify(db.value()))
+
+  return {
+    message: lines.join('\n')
   }
 }
 
