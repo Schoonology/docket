@@ -1,9 +1,9 @@
 var path = require('path')
 var lowdb = require('lowdb')
 var notifier = require('node-notifier')
+var work = require('./work')
 
-function work(argv, options, loader) {
-  var name = options._[0] || 'Unassigned'
+function _break(argv, options, loader) {
   var db = lowdb(options.db || path.join(process.env.HOME, '.docket'))
 
   db.defaults({
@@ -17,23 +17,17 @@ function work(argv, options, loader) {
         task.duration = elapsed
       }
     })
-    .push({
-      started: Date.now(),
-      duration: options.duration || 5000,
-      name: name
-    })
     .value()
 
-  // TODO(schoon) - Cleaner collaboration between `work` and `break`.
   clearTimeout(work.TIMER_ID)
 
   work.TIMER_ID = setTimeout(function () {
     notifier.notify({
       title: 'Docket',
-      message: 'Chunk complete: ' + name,
+      message: 'Break complete.',
       icon: null
     })
   }, options.duration || 5000)
 }
 
-module.exports = work
+module.exports = _break

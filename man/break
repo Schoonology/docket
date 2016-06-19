@@ -1,0 +1,4 @@
+Usage: docket break [OPTIONS]
+
+Options:
+  --duration [TIME]
