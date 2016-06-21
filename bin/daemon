@@ -24,8 +24,6 @@ process.on('SIGTERM', process.exit)
 
 server
   .on('listening', function () {
-    console.log('Daemon listening on port %s.', this.address().port)
-
     process.send && process.send('listening')
 
     db.set('port', this.address().port).value()

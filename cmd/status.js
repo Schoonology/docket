@@ -83,7 +83,6 @@ function status(argv, options, loader) {
   }
 
   lines.push('')
-  lines.push(JSON.stringify(db.value()))
 
   return {
     message: lines.join('\n')
