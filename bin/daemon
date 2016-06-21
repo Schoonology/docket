@@ -16,6 +16,7 @@ var db = lowdb(path.join(process.env.HOME, '.docket'))
 db.set('pid', process.pid).value()
 
 process.on('exit', function () {
+  db = lowdb(path.join(process.env.HOME, '.docket'))
   db.unset('pid').value()
   db.unset('port').value()
 })
