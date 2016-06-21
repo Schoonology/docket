@@ -1,0 +1,6 @@
+Usage: docket add [NAME] [OPTIONS]
+
+Manually add a chunk of work, assigned to NAME, to the docket.
+
+Options:
+  --duration [TIME]
